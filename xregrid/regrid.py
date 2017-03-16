@@ -5,6 +5,7 @@ import xarray as xr
 import pandas as pd
 import warnings
 import dask.array as da_ar
+from scipy.spatial import KDTree, cKDTree
 
 def regrid_var(ds, new_x, new_y, cython, *args):
     """
