@@ -55,7 +55,6 @@ def regrid_var(ds, new_x, new_y, cython, *args):
     Nt = ds[var].shape[0]
     da_numpy = np.zeros((Nt, len(new_y[:, 0]), len(new_x[0, :])))
     for t in range(Nt):
-        print t
         da = ds[var][t].reset_coords(names=time, drop=True).to_dataset(name=var).copy()
         da.coords['index'] = da_index
         da.coords['label'] = da_label
