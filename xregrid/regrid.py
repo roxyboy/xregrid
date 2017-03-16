@@ -34,6 +34,7 @@ def regrid_var(ds, new_x, new_y, cython, *args):
     original_coords = ds[latlon]
     latlon_list = list(original_coords.values)
     newyx = zip(new_y.ravel(), new_x.ravel())
+    new_index = np.arange(len(newyx))
     if cython:
         tree = cKDTree(newyx)
     else:
