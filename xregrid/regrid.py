@@ -44,12 +44,12 @@ def regrid_var(ds, new_x, new_y, cython, *args):
         newlabel[i] = newyx[index[i]]
     
     da_index = xr.DataArray(index, 
-                              dims=original_coords.dims,
-                              coords=original_coords.coords)
+                            dims=original_coords.dims,
+                            coords=original_coords.coords)
 
     da_label = xr.DataArray(newlabel, 
-                              dims=original_coords.dims,
-                              coords=original_coords.coords)
+                            dims=original_coords.dims,
+                            coords=original_coords.coords)
     
     Nt = ds[var].shape[0]
     da_numpy = np.zeros((Nt, len(new_y[:, 0]), len(new_x[0, :])))
