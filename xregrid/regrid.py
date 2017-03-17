@@ -35,7 +35,7 @@ def stack_var(ds, varname, latname, lonname, maskroll, reset, *args):
     if maskroll:
         assert len(args) > 3
         mask = args[3]
-        nlon = args[4]
+        nroll = args[4]
         T = T.where(mask).roll(nlon=nroll)
         lat = lat.where(mask).roll(nlon=nroll)
         lon = lon.where(mask).roll(nlon=nroll)
