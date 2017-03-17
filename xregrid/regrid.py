@@ -27,17 +27,18 @@ def stack_var(ds, varname, latname, lonname, maskroll, reset, *args):
     lat = ds[latname]
     lon = ds[lonname]
     latlon = latname + lonname
+    
+    time = args[0]
+    nlat = args[1]
+    nlon = args[2]
+
     if maskroll:
         assert len(args) > 3
-        mask = args[0]
-        nlon = args[1]
+        mask = args[3]
+        nlon = args[4]
         T = T.where(mask).roll(nlon=nroll)
         lat = lat.where(mask).roll(nlon=nroll)
         lon = lon.where(mask).roll(nlon=nroll)
-    
-    time = args[2]
-    nlat = args[3]
-    nlon = args[4]
     
     if reset:
         assert len(args) == 7
