@@ -7,16 +7,86 @@ import warnings
 import dask.array as da_ar
 from scipy.spatial import KDTree, cKDTree
 
+def stack_var(ds, varname, latname, lonname, maskroll, reset, *args):
+    """
+    Parameters
+    ------------
+    ds : xarray.DataSet
+    varname : string
+    latname : string
+    lonname : string
+    maskroll : boolean
+    reset : boolean
+    args : list
+    
+    Returns
+    ------------
+    T_comp_xray : xarray.DataSet
+    """
+    T = ds[varname]
+    lat = ds[latname]
+    lon = ds[lonname]
+    latlon = latname + lonname
+    if maskroll:
+        assert len(args) > 3
+        mask = args[0]
+        nlon = args[1]
+        T = T.where(mask).roll(nlon=nroll)
+        lat = lat.where(mask).roll(nlon=nroll)
+        lon = lon.where(mask).roll(nlon=nroll)
+    
+    time = args[2]
+    nlat = args[3]
+    nlon = args[4]
+    
+    if reset:
+        assert len(args) == 7
+        redundant_x = args[5]
+        redundant_y = args[6]
+        T = T.reset_coords([redundant_x, 
+                     redundant_y], drop=True)
+        lat = lat.reset_coords([redundant_x, 
+                     redundant_y], drop=True)
+        lon = lon.reset_coords([redundant_x, 
+                     redundant_y], drop=True)
+   
+    T_stacked = T.stack(points=(nlat,nlon).copy()
+    lat_stacked = lat.stack(points=(nlat,nlon).copy()
+    lon_stacked = lon.stack(points=(nlat,lon)).copy()
+
+    Nt = T_stacked.shape[0]
+    for t in range(Nt):
+        if t == 0:
+            T_comp = np.empty((Nt, 
+                               np.ma.masked_invalid(T_stacked[t].values).compressed().shape[0]))
+        T_comp[t] = np.ma.masked_invalid(T_stacked[t].values).compressed()
+    lat_comp = np.ma.masked_invalid(lat_stacked.values).compressed()
+    lon_comp = np.ma.masked_invalid(lon_stacked.values).compressed()
+
+    latlon = zip(lat_comp.ravel(), lon_comp.ravel())
+    latlon_array = np.empty(len(latlon), dtype=object)
+    for i in range(len(latlon)):
+        latlon_array[i] = latlon[i]
+
+    T_comp_xray = xr.DataArray(SST_comp, dims=[time, latlon], 
+                               coords={time: range(Nt), 
+                               latlon: latlon_array}).to_dataset(name=varname)
+    return T_comp_xray
+
 def regrid_var(ds, new_x, new_y, cython, *args):
     """
     Parameters
     --------------
     ds : xarray.Dataset
-        the dataset where the original coord can be found
-    original_coord_name : str
-        name of the original coordinate
-    new_coord: numpy.array
-        coordinates for the labels
+        dataset where the original coord can be found
+    new_x : numpy.array
+        array of zonal coordinates to regrid the data on
+    new_y : numpy.array
+        array of meridional coordinates to regrid the data on
+    cython : boolean
+        criteria whether to use the cython package of KDTree
+    *args : list
+        list of strings to name the coordinates and variable name
         
     Returns
     -------------
