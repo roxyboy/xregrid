@@ -26,7 +26,7 @@ def stack_var(ds, varname, latname, lonname, maskroll, reset, *args):
     T = ds[varname]
     lat = ds[latname]
     lon = ds[lonname]
-    latlon = latname + lonname
+    latlonname = latname + lonname
     
     time = args[0]
     nlat = args[1]
@@ -69,9 +69,9 @@ def stack_var(ds, varname, latname, lonname, maskroll, reset, *args):
     for i in range(len(latlon)):
         latlon_array[i] = latlon[i]
 
-    T_comp_xray = xr.DataArray(SST_comp, dims=[time, latlon], 
+    T_comp_xray = xr.DataArray(T_comp, dims=[time, latlonname], 
                                coords={time: range(Nt), 
-                               latlon: latlon_array}).to_dataset(name=varname)
+                               latlonname: latlon_array}).to_dataset(name=varname)
     return T_comp_xray
 
 def regrid_var(ds, new_x, new_y, cython, *args):
