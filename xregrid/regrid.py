@@ -50,9 +50,9 @@ def stack_var(ds, varname, latname, lonname, maskroll, reset, *args):
         lon = lon.reset_coords([redundant_x, 
                      redundant_y], drop=True)
    
-    T_stacked = T.stack(points=(nlat,nlon).copy()
-    lat_stacked = lat.stack(points=(nlat,nlon).copy()
-    lon_stacked = lon.stack(points=(nlat,lon)).copy()
+    T_stacked = T.stack(points=(nlat,nlon)).copy()
+    lat_stacked = lat.stack(points=(nlat,nlon)).copy()
+    lon_stacked = lon.stack(points=(nlat,nlon)).copy()
 
     Nt = T_stacked.shape[0]
     for t in range(Nt):
