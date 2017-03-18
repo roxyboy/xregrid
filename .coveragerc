@@ -8,5 +8,5 @@ exclude_lines =
     raise NotImplementedError
     if __name__ == .__main__.:
 ignore_errors = True
-omit = xarrayutils/test/*
-       xarrayutils/__init__.py
+omit = xregrid/test/*
+       xregrid/__init__.py
