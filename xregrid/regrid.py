@@ -111,6 +111,7 @@ def regrid_var(ds, new_x, new_y, cython, *args):
     assert new_x.ndim == 2
     assert new_y.ndim == 2
     
+ 
     original_coords = ds[latlon]
     latlon_list = list(original_coords.values)
     newyx = zip(new_y.ravel(), new_x.ravel())
@@ -133,6 +134,8 @@ def regrid_var(ds, new_x, new_y, cython, *args):
                             dims=original_coords.dims,
                             coords=original_coords.coords)
     
+    if ds[var].values.ndim != 2:
+        raise RuntimeError('data should be stacked in the spatial dimension')
     Nt = ds[var].shape[0]
     da_numpy = np.zeros((Nt, len(new_y[:, 0]), len(new_x[0, :])))
     for t in range(Nt):
