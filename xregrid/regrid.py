@@ -9,6 +9,10 @@ from scipy.spatial import KDTree, cKDTree
 
 def stack_var(ds, varname, latname, lonname, maskroll, reset, *args):
     """
+    Stacks the data in the spatial dimension and 
+    returns a xarray.DataSet with the dimension of
+    ['time', 'spatial'] for regrid_var().
+
     Parameters
     ------------
     ds : xarray.DataSet
@@ -85,6 +89,10 @@ def stack_var(ds, varname, latname, lonname, maskroll, reset, *args):
 
 def regrid_var(ds, new_x, new_y, cython, *args):
     """
+    Regrids the data on orthogonal and non-orthogonal grids
+    onto a new orthogonal grid using the scipy.spatial.KDTree
+    algorithm.
+
     Parameters
     --------------
     ds : xarray.Dataset
