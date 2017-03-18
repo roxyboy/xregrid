@@ -19,5 +19,5 @@ def test_length_args(d2d):
     time = d2d.coords.keys()[4]
     args = [time, ny, nx]
    
-    with pytest.raises(AssertionError):
+    with pytest.raises(RuntimeError):
         xg.stack_var(d2d, xx, yy, True, False, *args)

@@ -28,12 +28,15 @@ def stack_var(ds, varname, latname, lonname, maskroll, reset, *args):
     lon = ds[lonname]
     latlonname = latname + lonname
     
+    if T.values.ndim != 3:
+        raise RuntimeError('data must have at least the dimensions of time, lat and lon')
     time = args[0]
     nlat = args[1]
     nlon = args[2]
 
     if maskroll:
-        assert len(args) > 3
+        if len(args) < 4:
+            raise RuntimeError('args must have more than three elements')
         mask = args[3]
         nroll = args[4]
         T = T.where(mask).roll(nlon=nroll)
@@ -41,15 +44,21 @@ def stack_var(ds, varname, latname, lonname, maskroll, reset, *args):
         lon = lon.where(mask).roll(nlon=nroll)
     
     if reset:
-        assert len(args) == 7
-        redundant_x = args[5]
-        redundant_y = args[6]
-        T = T.reset_coords([redundant_x, 
-                     redundant_y], drop=True)
-        lat = lat.reset_coords([redundant_x, 
-                     redundant_y], drop=True)
-        lon = lon.reset_coords([redundant_x, 
-                     redundant_y], drop=True)
+        if maskroll:
+            if len(args) < 6:
+                raise RuntimeError('args must have more than five elements')
+            redundant_coords = []
+            for i in range(5,len(args)):
+                redundant_coords += [args[i],]
+        else:
+            if len(args) < 4:
+                raise RuntimeError('args must have more than three elements')
+            redundant_coords = []
+            for i in range(3,len(args)):
+                redundant_coords += [args[i],]
+        T = T.reset_coords(redundant_coords, drop=True)
+        lat = lat.reset_coords(redundant_coords, drop=True)
+        lon = lon.reset_coords(redundant_coords, drop=True)
    
     T_stacked = T.stack(points=(nlat,nlon)).copy()
     lat_stacked = lat.stack(points=(nlat,nlon)).copy()
