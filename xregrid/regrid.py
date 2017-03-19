@@ -121,6 +121,11 @@ def regrid_var(ds, new_x, new_y, cython, *args):
     
  
     original_coords = ds[latlon]
+    if new_y.min() < original_coords.values[0][0] or \
+       new_x.min() < original_coords.values[0][1] or \
+       new_y.max() > original_coords.values[-1][0] or \
+       new_x.max() > original_coords.values[-1][1]:
+        raise RuntimeError('new coordinates should be within the range of original coordinates')
     latlon_list = list(original_coords.values)
     newyx = zip(new_y.ravel(), new_x.ravel())
     new_index = np.arange(len(newyx))
