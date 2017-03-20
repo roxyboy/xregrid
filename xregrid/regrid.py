@@ -3,6 +3,7 @@ from future.utils import iteritems
 import numpy as np
 import xarray as xr
 import pandas as pd
+import profile
 import warnings
 import dask.array as da_ar
 from scipy.spatial import KDTree, cKDTree
@@ -87,7 +88,8 @@ def stack_var(ds, varname, latname, lonname, maskroll, reset, *args):
                                latlonname: latlon_array}).to_dataset(name=varname)
     return T_comp_xray
 
-def regrid_var(ds, new_x, new_y, cython, *args):
+
+def regrid_var(ds, new_x, new_y, cython, unstack, *args):
     """
     Regrids the data on orthogonal and non-orthogonal grids
     onto a new orthogonal grid using the scipy.spatial.KDTree
@@ -103,6 +105,8 @@ def regrid_var(ds, new_x, new_y, cython, *args):
         array of meridional coordinates to regrid the data on
     cython : boolean
         criteria whether to use the cython package of KDTree
+    unstack : boolean
+        criteria whether to use indexing to unstack the data
     *args : list
         list of strings to name the coordinates and variable name
         
@@ -119,12 +123,26 @@ def regrid_var(ds, new_x, new_y, cython, *args):
     assert new_x.ndim == 2
     assert new_y.ndim == 2
     
- 
+    dx = np.diff(new_x[0, :])[0]
+    dy = np.diff(new_y[:, 0])[0]
     original_coords = ds[latlon]
-    if new_y.min() < original_coords.values[0][0] or \
-       new_x.min() < original_coords.values[0][1] or \
-       new_y.max() > original_coords.values[-1][0] or \
-       new_x.max() > original_coords.values[-1][1]:
+    for i in range(1, len(original_coords.values)):
+        latmin = original_coords.values[0][0]
+        latmax = original_coords.values[0][0]
+        lonmin = original_coords.values[0][1]
+        lonmax = original_coords.values[0][1]
+        if latmin > original_coords.values[i][0]:
+            latmin = original_coords.values[i][0]
+        if lonmin > original_coords.values[i][1]:
+            lonmin = original_coords.values[i][1]
+        if latmax < original_coords.values[i][0]:
+            latmax = original_coords.values[i][0]
+        if lonmax < original_coords.values[i][0]:
+            lonmax = original_coords.values[i][0]
+    if new_y.min() < latmin-dy or \
+        new_x.min() < lonmin-dx or \
+        new_y.max() > latmax+dy or \
+        new_x.max() > lonmax+dx:
         raise RuntimeError('new coordinates should be within the range of original coordinates')
     latlon_list = list(original_coords.values)
     newyx = zip(new_y.ravel(), new_x.ravel())
@@ -153,16 +171,22 @@ def regrid_var(ds, new_x, new_y, cython, *args):
     da_numpy = np.zeros((Nt, len(new_y[:, 0]), len(new_x[0, :])))
     for t in range(Nt):
         da = ds[var][t].reset_coords(names=time, 
-                                     drop=True).to_dataset(name=var).copy()
+                                     drop=True).to_dataset(name=var).copy()        
         da.coords['index'] = da_index
         da.coords['label'] = da_label
         da_grouped = da.groupby('index').mean()
         da_reindexed = da_grouped.reindex({'index': new_index})
-        da_panda_index = pd.MultiIndex.from_arrays([new_y.ravel(), 
-                                                    new_x.ravel()], names=[meri, zon])
-        da_reindexed.coords[latlon] = ('index', da_panda_index)
-        da_unstacked = da_reindexed.swap_dims({'index': latlon}).unstack(latlon)
-        da_numpy[t] = da_unstacked[var].values
+        if unstack:
+            da_panda_index = pd.MultiIndex.from_arrays([new_y.ravel(), 
+                                                       new_x.ravel()], 
+                                                       names=[meri, zon])
+            da_reindexed.coords[latlon] = ('index', 
+                                           da_panda_index)
+            da_unstacked = da_reindexed.swap_dims({'index': latlon}).unstack(latlon)[var].values
+        else:
+            da_unstacked = da_reindexed[var].values.reshape((len(new_y[:, 0]), 
+                                                             len(new_x[0, :])))
+        da_numpy[t] = da_unstacked
 
     da = xr.DataArray(da_numpy, dims=[time, meri, zon], 
                       coords={time: range(Nt), meri: new_y[:, 0], 

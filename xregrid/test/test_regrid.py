@@ -20,4 +20,4 @@ def test_length_args(d2d):
     args = [time, ny, nx]
    
     with pytest.raises(RuntimeError):
-        xg.stack_var(d2d, xx, yy, True, False, *args)
+        xg.stack_var(d2d, varname, xx, yy, True, False, *args)
