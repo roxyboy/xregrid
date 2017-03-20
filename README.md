@@ -1,7 +1,6 @@
 # xregrid
 
 [![codecov](https://codecov.io/gh/roxyboy/xregrid/branch/master/graph/badge.svg)](https://codecov.io/gh/roxyboy/xregrid)
-
 [![Build Status](https://travis-ci.org/roxyboy/xregrid.svg?branch=master)](https://travis-ci.org/roxyboy/xregrid)
 
 xregrid is a package for aggregating and/or regridding data onto a orthogonal grid using the KDTree algorithm.
