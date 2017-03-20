@@ -11,12 +11,13 @@ import os
 from . datasets import d2d
 
 def test_length_args(d2d):
-    varname = d2d.data_vars.keys()[0]
-    nx = d2d.coords.keys()[0]
-    ny = d2d.coords.keys()[1]
-    xx = d2d.coords.keys()[2]
-    yy = d2d.coords.keys()[3]
-    time = d2d.coords.keys()[4]
+    varname = list(d2d.data_vars.keys())[0]
+    coords = list(d2d.coords.keys())
+    nx = coords[0]
+    ny = coords[1]
+    xx = coords[2]
+    yy = coords[3]
+    time = coords[4]
     args = [time, ny, nx]
    
     with pytest.raises(RuntimeError):
