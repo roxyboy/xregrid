@@ -126,24 +126,7 @@ def regrid_var(ds, new_x, new_y, cython, unstack, *args):
     dx = np.diff(new_x[0, :])[0]
     dy = np.diff(new_y[:, 0])[0]
     original_coords = ds[latlon]
-    for i in range(1, len(original_coords.values)):
-        latmin = original_coords.values[0][0]
-        latmax = original_coords.values[0][0]
-        lonmin = original_coords.values[0][1]
-        lonmax = original_coords.values[0][1]
-        if latmin > original_coords.values[i][0]:
-            latmin = original_coords.values[i][0]
-        if lonmin > original_coords.values[i][1]:
-            lonmin = original_coords.values[i][1]
-        if latmax < original_coords.values[i][0]:
-            latmax = original_coords.values[i][0]
-        if lonmax < original_coords.values[i][0]:
-            lonmax = original_coords.values[i][0]
-    if new_y.min() < latmin-dy or \
-        new_x.min() < lonmin-dx or \
-        new_y.max() > latmax+dy or \
-        new_x.max() > lonmax+dx:
-        raise RuntimeError('new coordinates should be within the range of original coordinates')
+   
     latlon_list = list(original_coords.values)
     newyx = zip(new_y.ravel(), new_x.ravel())
     new_index = np.arange(len(newyx))
