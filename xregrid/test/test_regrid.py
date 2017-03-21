@@ -29,15 +29,9 @@ def test_length_args(d2d):
 def test_stack_regrid(d2d):
 
     varname = list(d2d.data_vars.keys())[0]
-    coords = list(d2d.coords.keys())
-    nx = coords[0]
-    ny = coords[1]
-    xx = coords[2]
-    yy = coords[3]
-    time = coords[4]
-    args = [time, ny, nx]
+    args = ['time', 'ny', 'nx']
    
-    d2d_stacked = xg.stack_var(d2d, varname, yy, xx, False, False, *args)
+    d2d_stacked = xg.stack_var(d2d, varname, 'yy', 'xx', False, False, *args)
     expected_stack = np.array([-10., -9.93657608, -9.87340755, -9.81074876 ,-9.74885201,
                                -9.68796655, -9.62833754, -9.57020509, -9.51380326, -9.45935918,
                                -9.40709207, -9.35721239, -9.30992099, -9.26540829, -9.22385354,
