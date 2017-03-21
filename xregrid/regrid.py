@@ -78,9 +78,10 @@ def stack_var(ds, varname, latname, lonname, maskroll, reset, *args):
     lat_comp = np.ma.masked_invalid(lat_stacked.values).compressed()
     lon_comp = np.ma.masked_invalid(lon_stacked.values).compressed()
 
-    latlon = zip(lat_comp.ravel(), lon_comp.ravel())
-    latlon_array = np.empty(len(latlon), dtype=object)
-    for i in range(len(latlon)):
+    latlon = list(zip(lat_comp.ravel(), lon_comp.ravel()))
+    Nlatlon = len(latlon)
+    latlon_array = np.empty(Nlatlon, dtype=object)
+    for i in range(Nlatlon):
         latlon_array[i] = latlon[i]
 
     T_comp_xray = xr.DataArray(T_comp, dims=[time, latlonname], 
@@ -128,8 +129,9 @@ def regrid_var(ds, new_x, new_y, cython, unstack, *args):
     original_coords = ds[latlon]
    
     latlon_list = list(original_coords.values)
-    newyx = zip(new_y.ravel(), new_x.ravel())
-    new_index = np.arange(len(newyx))
+    newyx = list(zip(new_y.ravel(), new_x.ravel()))
+    Nnewyx = len(newyx)
+    new_index = np.arange(Nnewyx)
     if cython:
         tree = cKDTree(newyx)
     else:

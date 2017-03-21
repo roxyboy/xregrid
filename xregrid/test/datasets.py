@@ -20,9 +20,10 @@ dataarrays = {
                          coords={'time': range(1), 'ny': indexy, 'nx': indexx, 
                                  'yy': (('ny', 'nx'), yy), 
                          'xx': (('ny', 'nx'), xx)}
-                        ).to_dataset(name='f')
-}
+                        ).to_dataset(name='f'),
+             }
 
 @pytest.fixture(params=['d2d'])
 def d2d(request):
     return dataarrays[request.param]
+
