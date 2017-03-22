@@ -142,14 +142,14 @@ def regrid_var(ds, new_x, new_y, cython, unstack, *args):
     for i in range(len(index)):
         newlabel[i] = newyx[index[i]]
     
-    da_index = xr.DataArray(index, 
-                            dims=original_coords.dims,
-                            coords=original_coords.coords)
+    # da_index = xr.DataArray(index, 
+    #                         dims=original_coords.dims,
+    #                         coords=original_coords.coords)
 
-    da_label = xr.DataArray(newlabel, 
-                            dims=original_coords.dims,
-                            coords=original_coords.coords)
-    
+    # da_label = xr.DataArray(newlabel, 
+    #                         dims=original_coords.dims,
+    #                         coords=original_coords.coords)
+
     if ds[var].values.ndim != 2:
         raise RuntimeError('data should be stacked in the spatial dimension')
     Nt = ds[var].shape[0]
@@ -157,8 +157,9 @@ def regrid_var(ds, new_x, new_y, cython, unstack, *args):
     for t in range(Nt):
         da = ds[var][t].reset_coords(names=time, 
                                      drop=True).to_dataset(name=var).copy()        
-        da.coords['index'] = da_index
-        da.coords['label'] = da_label
+        # da.coords['index'] = da_index
+        da.coords['index'] = xr.Variable([latlon], index)
+        # da.coords['label'] = da_label
         da_grouped = da.groupby('index').mean()
         da_reindexed = da_grouped.reindex({'index': new_index})
         if unstack:
